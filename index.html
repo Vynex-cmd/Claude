@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>profile · bio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: rgba(255,255,255,0.04);
+    --surface2: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --accent: #7c5cfc;
+    --accent2: #5c9fff;
+    --accent3: #ff5caa;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --dim: rgba(255,255,255,0.35);
+    --online: #3ba55d;
+    --glow: rgba(124,92,252,0.35);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* BACKGROUND IMAGE — put your file in /images/background.png */
+.bg-wrap{
+position:fixed;inset:0;z-index:0;
+background-image:url(‘images/background.png’);
+background-size:cover;background-position:center;background-repeat:no-repeat;
+}
+.bg-overlay{
+position:fixed;inset:0;z-index:0;
+background:
+linear-gradient(rgba(10,10,15,0.75),rgba(10,10,15,0.75)),
+radial-gradient(ellipse 80% 60% at 20% 10%,rgba(124,92,252,0.18) 0%,transparent 60%),
+radial-gradient(ellipse 60% 40% at 85% 80%,rgba(92,159,255,0.1) 0%,transparent 55%);
+}
+.bg-grid{
+position:fixed;inset:0;z-index:0;
+background-image:linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px);
+background-size:40px 40px;
+mask-image:radial-gradient(ellipse 100% 100% at 50% 50%,black 20%,transparent 80%);
+}
+.bg-particles{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.particle{position:absolute;border-radius:50%;background:var(–accent);opacity:0.15;animation:float-particle linear infinite}
+@keyframes float-particle{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.15}90%{opacity:.1}100%{transform:translateY(-20px) scale(1);opacity:0}}
+
+.page{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 16px}
+.container{width:100%;max-width:680px;display:flex;flex-direction:column;gap:12px}
+
+.card{background:var(–surface);border:1px solid var(–border);border-radius:16px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transition:border-color .2s,box-shadow .2s}
+.card:hover{border-color:var(–border2);box-shadow:0 0 0 1px rgba(124,92,252,0.1),0 8px 32px rgba(0,0,0,0.4)}
+
+/* PROFILE */
+.profile-card{padding:24px;position:relative;overflow:hidden}
+.profile-card::before{content:’’;position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(–accent),var(–accent2),transparent);opacity:.7}
+/* BANNER IMAGE — put your file in /images/banner.png */
+.profile-banner{
+position:absolute;top:0;left:0;right:0;height:110px;border-radius:16px 16px 0 0;overflow:hidden;
+background-image:url(‘images/banner.png’);background-size:cover;background-position:center;
+}
+.profile-banner::before{content:’’;position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,92,252,0.5),rgba(92,159,255,0.3),rgba(255,92,170,0.25));z-index:0}
+.profile-main{position:relative;margin-top:70px;display:flex;align-items:flex-end;gap:16px}
+.pfp-wrap{position:relative;flex-shrink:0}
+.pfp{width:82px;height:82px;border-radius:50%;border:3px solid var(–bg);overflow:hidden;background:linear-gradient(135deg,var(–accent),var(–accent2));display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 0 0 2px var(–accent),0 4px 20px rgba(124,92,252,0.45)}
+.pfp img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.status-dot{position:absolute;bottom:4px;right:4px;width:14px;height:14px;border-radius:50%;background:var(–online);border:2.5px solid var(–bg);box-shadow:0 0 6px var(–online)}
+.profile-info{flex:1;min-width:0}
+.profile-username{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.2;position:relative}
+.profile-username::after{content:attr(data-text);position:absolute;inset:0;opacity:0}
+.profile-username:hover::after{opacity:1;animation:glitch .5s steps(2) infinite}
+@keyframes glitch{0%{clip-path:polygon(0 20%,100% 20%,100% 21%,0 21%);transform:translate(-2px,0);color:#ff5caa}20%{clip-path:polygon(0 70%,100% 70%,100% 71%,0 71%);transform:translate(2px,0);color:#5c9fff}40%{clip-path:polygon(0 40%,100% 40%,100% 42%,0 42%);transform:translate(-1px,0);color:inherit}60%{clip-path:polygon(0 80%,100% 80%,100% 82%,0 82%);transform:translate(2px,0);color:#ff5caa}80%{clip-path:polygon(0 10%,100% 10%,100% 11%,0 11%);transform:translate(-1px,0);color:inherit}100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);transform:translate(0,0);color:inherit}}
+.profile-tag{font-family:‘JetBrains Mono’,monospace;font-size:11px;color:var(–muted);margin-top:2px}
+.profile-bio{margin-top:12px;font-size:13.5px;color:var(–dim);line-height:1.65;max-width:480px}
+.meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.meta-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(–border);border-radius:8px;padding:5px 10px;font-family:‘JetBrains Mono’,monospace;font-size:11px;color:var(–muted)}
+.meta-pill .dot{width:6px;height:6px;border-radius:50%}
+.meta-pill span.val{color:var(–text);font-weight:500}
+
+/* BADGES */
+.badges-card{padding:16px 20px}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(–muted);margin-bottom:10px}
+.badges-row{display:flex;gap:8px;flex-wrap:wrap}
+.badge{position:relative;width:36px;height:36px;border-radius:10px;background:var(–surface2);border:1px solid var(–border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.badge:hover{transform:translateY(-3px) scale(1.1);border-color:rgba(124,92,252,0.5);box-shadow:0 6px 20px rgba(0,0,0,0.4),0 0 12px var(–glow)}
+.badge-tip{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%) translateY(4px);background:#1a1a2e;border:1px solid var(–border2);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:500;white-space:nowrap;color:var(–text);pointer-events:none;opacity:0;transition:opacity .15s,transform .15s;z-index:10}
+.badge-tip::after{content:’’;position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1a1a2e}
+.badge:hover .badge-tip{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* SOCIALS */
+.socials-card{padding:16px 20px}
+.socials-grid{display:flex;flex-direction:column;gap:6px}
+.social-link{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid transparent;text-decoration:none;color:var(–text);transition:background .15s,border-color .15s,transform .12s;font-size:13.5px;font-weight:500}
+.social-link:hover{background:rgba(255,255,255,0.07);border-color:var(–border2);transform:translateX(3px)}
+.social-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.social-link .arrow{margin-left:auto;color:var(–muted);font-size:12px;transition:transform .15s}
+.social-link:hover .arrow{transform:translateX(2px)}
+
+/* DISCORD */
+.discord-card{padding:16px 20px}
+.discord-embed{background:rgba(88,101,242,0.1);border:1px solid rgba(88,101,242,0.25);border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden}
+.discord-embed::before{content:’’;position:absolute;left:0;top:0;bottom:0;width:4px;background:#5865F2;border-radius:4px 0 0 4px}
+.discord-avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#5865F2,#7c5cfc);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:2px solid rgba(88,101,242,0.45);overflow:hidden;position:relative}
+.discord-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.discord-status-dot{position:absolute;bottom:0;right:0;width:14px;height:14px;border-radius:50%;background:var(–online);border:2px solid var(–bg)}
+.discord-info{flex:1;min-width:0}
+.discord-name{font-weight:700;font-size:15px;letter-spacing:-.2px}
+.discord-handle{font-size:11.5px;color:var(–muted);font-family:‘JetBrains Mono’,monospace;margin-top:1px}
+.discord-badge-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.discord-badge{padding:3px 8px;border-radius:5px;font-size:10.5px;font-weight:600;letter-spacing:.04em;background:rgba(88,101,242,0.2);border:1px solid rgba(88,101,242,0.3);color:#8a9fff}
+.discord-activity{margin-top:8px;background:rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px;font-size:12px;color:var(–dim);display:flex;align-items:center;gap:8px}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:#3ba55d;flex-shrink:0;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* MUSIC PLAYER */
+.music-card{padding:16px 20px}
+.music-player{background:rgba(255,255,255,0.03);border:1px solid var(–border);border-radius:12px;overflow:hidden}
+.music-top{display:flex;align-items:center;gap:14px;padding:14px}
+.album-art{width:54px;height:54px;border-radius:10px;background:linear-gradient(135deg,var(–accent),var(–accent3));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(124,92,252,0.35);overflow:hidden}
+.album-art img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.music-info{flex:1;min-width:0}
+.music-title{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.music-artist{font-size:12px;color:var(–muted);margin-top:2px}
+.music-controls{display:flex;align-items:center;gap:6px}
+.ctrl-btn{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(–border);color:var(–text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:background .15s,border-color .15s,transform .1s}
+.ctrl-btn:hover{background:rgba(255,255,255,0.12);border-color:var(–border2);transform:scale(1.05)}
+.ctrl-btn.play{background:var(–accent);border-color:transparent;width:36px;height:36px;font-size:14px;box-shadow:0 0 12px rgba(124,92,252,0.4)}
+.ctrl-btn.play:hover{background:#8f70ff}
+.track-list{padding:0 14px 6px;display:flex;flex-direction:column;gap:4px}
+.track{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;cursor:pointer;transition:background .15s;font-size:12.5px;border:1px solid transparent}
+.track:hover{background:rgba(255,255,255,0.05)}
+.track.active{background:rgba(124,92,252,0.12);border-color:rgba(124,92,252,0.2)}
+.track-num{width:16px;text-align:center;color:var(–muted);font-family:‘JetBrains Mono’,monospace;font-size:11px;flex-shrink:0}
+.track.active .track-num{color:var(–accent)}
+.track-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track-dur{color:var(–muted);font-family:‘JetBrains Mono’,monospace;font-size:11px}
+.music-progress-wrap{padding:0 14px 10px}
+.progress-bar-track{width:100%;height:4px;border-radius:4px;background:rgba(255,255,255,0.08);cursor:pointer;position:relative;margin-bottom:6px}
+.progress-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(–accent),var(–accent2));width:0%;position:relative;transition:width .1s linear}
+.progress-bar-fill::after{content:’’;position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 6px var(–accent);opacity:0;transition:opacity .15s}
+.progress-bar-track:hover .progress-bar-fill::after{opacity:1}
+.time-row{display:flex;justify-content:space-between;font-size:10px;font-family:‘JetBrains Mono’,monospace;color:var(–muted)}
+.music-bottom{border-top:1px solid var(–border);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.vol-icon{font-size:14px;color:var(–muted);cursor:pointer;flex-shrink:0;transition:color .15s;user-select:none}
+.vol-icon:hover{color:var(–text)}
+.vol-slider{-webkit-appearance:none;appearance:none;flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,0.08);outline:none;cursor:pointer}
+.vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(–accent);box-shadow:0 0 6px var(–accent);cursor:pointer}
+.vol-label{font-size:11px;font-family:‘JetBrains Mono’,monospace;color:var(–muted);flex-shrink:0;width:28px;text-align:right}
+.music-embed-wrap{border-top:1px solid var(–border);padding:12px 14px}
+.spotify-embed{border-radius:10px;overflow:hidden;width:100%;height:80px}
+
+.footer{text-align:center;padding:8px;font-size:11px;color:var(–muted);letter-spacing:.04em;font-family:‘JetBrains Mono’,monospace}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+</style>
+
+</head>
+<body>
+
+<div class="bg-wrap"></div>
+<div class="bg-overlay"></div>
+<div class="bg-grid"></div>
+<div class="bg-particles" id="particles"></div>
+
+<div class="page">
+<div class="container">
+
+  <!-- PROFILE CARD -->
+
+  <div class="card profile-card">
+    <div class="profile-banner"></div>
+    <div class="profile-main">
+      <div class="pfp-wrap">
+        <div class="pfp">
+          <!-- PFP: place your image at images/pfp.png -->
+          <img src="images/pfp.png" alt="pfp" onerror="this.style.display='none'">
+        </div>
+        <div class="status-dot"></div>
+      </div>
+      <div class="profile-info">
+        <!-- CHANGE USERNAME HERE (both the data-text and the text content) -->
+        <div class="profile-username" data-text="username">username</div>
+        <div class="profile-tag">UID#0001 &nbsp;·&nbsp; pronouns</div>
+      </div>
+    </div>
+    <!-- BIO TEXT -->
+    <div class="profile-bio">
+      your bio goes here — keep it short, keep it real. ✨<br>
+      <span style="color:var(--muted)">probably listening to music rn.</span>
+    </div>
+    <div class="meta-row">
+      <div class="meta-pill"><div class="dot" style="background:var(--accent)"></div>UID&nbsp;<span class="val" id="uid-display">#000001</span></div>
+      <div class="meta-pill"><div class="dot" style="background:var(--accent2)"></div>views&nbsp;<span class="val" id="view-count">...</span></div>
+      <div class="meta-pill"><div class="dot" style="background:#3ba55d"></div>status&nbsp;<span class="val">online</span></div>
+    </div>
+  </div>
+
+  <!-- BADGES -->
+
+  <div class="card badges-card">
+    <div class="section-label">badges</div>
+    <div class="badges-row" id="badges"></div>
+  </div>
+
+  <!-- SOCIALS -->
+
+  <div class="card socials-card">
+    <div class="section-label">socials</div>
+    <div class="socials-grid" id="socials"></div>
+  </div>
+
+  <!-- DISCORD -->
+
+  <div class="card discord-card">
+    <div class="section-label">discord</div>
+    <div class="discord-embed">
+      <div class="discord-avatar">
+        <!-- Discord avatar: reuses pfp.png or change to images/discord-avatar.png -->
+        <img src="images/pfp.png" alt="discord avatar" onerror="this.style.display='none'">
+        <div class="discord-status-dot"></div>
+      </div>
+      <div class="discord-info">
+        <!-- CHANGE THESE -->
+        <div class="discord-name">YourDisplayName</div>
+        <div class="discord-handle">@yourusername</div>
+        <div class="discord-badge-row">
+          <span class="discord-badge">Nitro</span>
+          <span class="discord-badge">Early Supporter</span>
+          <span class="discord-badge">Server Booster</span>
+        </div>
+        <div class="discord-activity">
+          <div class="activity-dot"></div>
+          Listening to Spotify —&nbsp;<strong style="color:var(--text)">song name here</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MUSIC PLAYER -->
+
+  <div class="card music-card">
+    <div class="section-label">now playing</div>
+    <div class="music-player">
+      <div class="music-top">
+        <div class="album-art" id="album-art">
+          <img id="album-img" src="" alt="" style="display:none">
+          <span id="album-emoji">🎵</span>
+        </div>
+        <div class="music-info">
+          <div class="music-title" id="music-title">Select a track</div>
+          <div class="music-artist" id="music-artist">—</div>
+        </div>
+        <div class="music-controls">
+          <button class="ctrl-btn" id="btn-prev">⏮</button>
+          <button class="ctrl-btn play" id="btn-play">▶</button>
+          <button class="ctrl-btn" id="btn-next">⏭</button>
+        </div>
+      </div>
+      <div class="track-list" id="track-list"></div>
+      <div class="music-progress-wrap">
+        <div class="progress-bar-track" id="progress-track">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <div class="time-row"><span id="time-cur">0:00</span><span id="time-dur">0:00</span></div>
+      </div>
+      <div class="music-bottom">
+        <span class="vol-icon" id="vol-icon">🔊</span>
+        <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="70">
+        <span class="vol-label" id="vol-label">70%</span>
+      </div>
+      <!-- SPOTIFY EMBED: paste your embed src URL below -->
+      <div class="music-embed-wrap">
+        <iframe class="spotify-embed"
+          src="https://open.spotify.com/embed/track/4uLU6hMCjMI75M1A2tKUQC?utm_source=generator&theme=0"
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy">
+        </iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">made with ♥ &nbsp;·&nbsp; <span id="footer-uid"></span> &nbsp;·&nbsp; <span id="footer-views"></span> views</div>
+
+</div>
+</div>
+
+<audio id="audio-player" preload="none"></audio>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG — edit this section to personalise your page
+// ═══════════════════════════════════════════════════
+const CONFIG = {
+
+  uid: '000001',
+
+  badges: [
+    { emoji: '⭐', name: 'OG Member' },
+    { emoji: '💎', name: 'Diamond Tier' },
+    { emoji: '🔥', name: 'On Fire' },
+    { emoji: '🛡️', name: 'Verified' },
+    { emoji: '🎮', name: 'Gamer' },
+    { emoji: '🌙', name: 'Night Owl' },
+    { emoji: '🎨', name: 'Creative' },
+    { emoji: '🚀', name: 'Early Adopter' },
+    { emoji: '👑', name: 'Royalty' },
+    { emoji: '💫', name: 'Star' },
+  ],
+
+  socials: [
+    { icon: '𝕏',  label: 'Twitter / X',   url: 'https://twitter.com/yourhandle',       color: '#e7e9ea' },
+    { icon: '▶',  label: 'YouTube',        url: 'https://youtube.com/@yourchannel',     color: '#ff0000' },
+    { icon: '📸', label: 'Instagram',       url: 'https://instagram.com/yourhandle',     color: '#e1306c' },
+    { icon: '💬', label: 'Discord Server',  url: 'https://discord.gg/yourinvite',        color: '#5865F2' },
+    { icon: '🐙', label: 'GitHub',          url: 'https://github.com/yourusername',      color: '#6e40c9' },
+    { icon: '🎵', label: 'Spotify',         url: 'https://open.spotify.com/user/yourid', color: '#1DB954' },
+  ],
+
+  // Audio files go in /music/   e.g.  music/song.mp3
+  // Cover images go in /images/ e.g.  images/cover1.png
+  tracks: [
+    { title: 'Track One',   artist: 'Artist Name', emoji: '🌃', cover: 'images/cover1.png', src: 'music/track1.mp3', duration: '3:30' },
+    { title: 'Track Two',   artist: 'Artist Name', emoji: '💜', cover: 'images/cover2.png', src: 'music/track2.mp3', duration: '3:45' },
+    { title: 'Track Three', artist: 'Artist Name', emoji: '✨', cover: 'images/cover3.png', src: 'music/track3.mp3', duration: '4:10' },
+    { title: 'Track Four',  artist: 'Artist Name', emoji: '🖤', cover: 'images/cover4.png', src: 'music/track4.mp3', duration: '3:14' },
+    { title: 'Track Five',  artist: 'Artist Name', emoji: '⭐', cover: 'images/cover5.png', src: 'music/track5.mp3', duration: '3:55' },
+  ],
+};
+// ═══════════════════════════════════════════════════
+
+
+// Particles
+(function(){
+  const wrap=document.getElementById('particles');
+  const colors=['#7c5cfc','#5c9fff','#ff5caa'];
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');p.className='particle';
+    const size=Math.random()*3+1.5;
+    p.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${8+Math.random()*14}s;animation-delay:${-Math.random()*20}s;`;
+    wrap.appendChild(p);
+  }
+})();
+
+// Views
+(function(){
+  const key='profile_views_v1';
+  let v=parseInt(localStorage.getItem(key)||'0',10);v++;
+  localStorage.setItem(key,v);
+  const d=v+1247;
+  document.getElementById('view-count').textContent=d.toLocaleString();
+  document.getElementById('footer-views').textContent=d.toLocaleString();
+})();
+
+// UID
+document.getElementById('uid-display').textContent='#'+CONFIG.uid;
+document.getElementById('footer-uid').textContent='UID#'+CONFIG.uid;
+
+// Badges
+(function(){
+  const wrap=document.getElementById('badges');
+  CONFIG.badges.forEach(b=>{
+    const el=document.createElement('div');el.className='badge';
+    el.innerHTML=`${b.emoji}<span class="badge-tip">${b.name}</span>`;
+    wrap.appendChild(el);
+  });
+})();
+
+// Socials
+(function(){
+  const wrap=document.getElementById('socials');
+  CONFIG.socials.forEach(s=>{
+    const a=document.createElement('a');a.className='social-link';
+    a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';
+    a.innerHTML=`<div class="social-icon" style="background:${s.color}22;border:1px solid ${s.color}44">${s.icon}</div><span>${s.label}</span><span class="arrow">›</span>`;
+    wrap.appendChild(a);
+  });
+})();
+
+// Music Player
+(function(){
+  const audio=document.getElementById('audio-player');
+  const btnPlay=document.getElementById('btn-play');
+  const btnPrev=document.getElementById('btn-prev');
+  const btnNext=document.getElementById('btn-next');
+  const fillEl=document.getElementById('progress-fill');
+  const trackEl=document.getElementById('progress-track');
+  const timeCur=document.getElementById('time-cur');
+  const timeDur=document.getElementById('time-dur');
+  const volSlider=document.getElementById('vol-slider');
+  const volLabel=document.getElementById('vol-label');
+  const volIcon=document.getElementById('vol-icon');
+  const titleEl=document.getElementById('music-title');
+  const artistEl=document.getElementById('music-artist');
+  const albumImg=document.getElementById('album-img');
+  const albumEmoji=document.getElementById('album-emoji');
+  const listEl=document.getElementById('track-list');
+  let cur=0;
+
+  const fmt=s=>{const m=Math.floor(s/60),sec=Math.floor(s%60);return `${m}:${sec.toString().padStart(2,'0')}`};
+
+  function buildList(){
+    listEl.innerHTML='';
+    CONFIG.tracks.forEach((t,i)=>{
+      const div=document.createElement('div');
+      div.className='track'+(i===cur?' active':'');
+      div.innerHTML=`<span class="track-num">${i===cur?'♪':(i+1)}</span><span class="track-name">${t.title}</span><span style="font-size:12px;margin-right:4px">${t.emoji}</span><span class="track-dur">${t.duration}</span>`;
+      div.addEventListener('click',()=>loadTrack(i,true));
+      listEl.appendChild(div);
+    });
+  }
+
+  function loadTrack(index,autoplay){
+    cur=index;
+    const t=CONFIG.tracks[index];
+    titleEl.textContent=t.title;
+    artistEl.textContent=t.artist;
+    if(t.cover){
+      albumImg.src=t.cover;albumImg.style.display='block';albumEmoji.style.display='none';
+      albumImg.onerror=()=>{albumImg.style.display='none';albumEmoji.style.display='block';albumEmoji.textContent=t.emoji};
+    } else {
+      albumImg.style.display='none';albumEmoji.style.display='block';albumEmoji.textContent=t.emoji;
+    }
+    audio.src=t.src;audio.load();
+    fillEl.style.width='0%';timeCur.textContent='0:00';
+    buildList();
+    if(autoplay){audio.play().catch(()=>{});btnPlay.textContent='⏸';}
+    else{btnPlay.textContent='▶';}
+  }
+
+  btnPlay.addEventListener('click',()=>{
+    if(audio.paused){
+      if(!audio.src||audio.src===window.location.href){loadTrack(cur,true);return;}
+      audio.play().catch(()=>{});btnPlay.textContent='⏸';
+    } else {audio.pause();btnPlay.textContent='▶';}
+  });
+  btnNext.addEventListener('click',()=>loadTrack((cur+1)%CONFIG.tracks.length,!audio.paused));
+  btnPrev.addEventListener('click',()=>{
+    if(audio.currentTime>3){audio.currentTime=0;return;}
+    loadTrack((cur-1+CONFIG.tracks.length)%CONFIG.tracks.length,!audio.paused);
+  });
+  audio.addEventListener('ended',()=>loadTrack((cur+1)%CONFIG.tracks.length,true));
+  audio.addEventListener('timeupdate',()=>{
+    if(!audio.duration)return;
+    fillEl.style.width=(audio.currentTime/audio.duration*100)+'%';
+    timeCur.textContent=fmt(audio.currentTime);
+  });
+  audio.addEventListener('durationchange',()=>{timeDur.textContent=fmt(audio.duration)});
+  trackEl.addEventListener('click',e=>{
+    if(!audio.duration)return;
+    const rect=trackEl.getBoundingClientRect();
+    audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
+  });
+
+  audio.volume=0.7;
+  function updateVol(){
+    const v=volSlider.value;
+    volSlider.style.background=`linear-gradient(90deg,var(--accent) ${v}%,rgba(255,255,255,0.08) ${v}%)`;
+    volLabel.textContent=v+'%';
+    volIcon.textContent=v==0?'🔇':v<40?'🔉':'🔊';
+    audio.volume=v/100;
+  }
+  volSlider.addEventListener('input',updateVol);updateVol();
+  volIcon.addEventListener('click',()=>{volSlider.value=audio.volume>0?0:70;updateVol();});
+
+  loadTrack(0,false);
+})();
+</script>
+
+</body>
+</html>
