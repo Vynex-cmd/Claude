@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>profile · bio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+--bg:#0a0a0f;
+--surface:rgba(255,255,255,0.04);
+--surface2:rgba(255,255,255,0.07);
+--border:rgba(255,255,255,0.08);
+--accent:#7c5cfc;
+--text:#e8e8f0;
+}
+
+body{margin:0;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text)}
+
+.bg-wrap{
+position:fixed;inset:0;
+background:url('images/background.png') center/cover no-repeat;
+z-index:-1;
+}
+
+.card{
+max-width:700px;margin:20px auto;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:16px;
+padding:20px;
+backdrop-filter:blur(20px);
+}
+
+.profile-banner{
+height:120px;
+background:url('images/banner.png') center/cover no-repeat;
+border-radius:12px;
+margin:-20px -20px 10px -20px;
+}
+
+.avatar{
+width:80px;height:80px;border-radius:50%;
+border:3px solid var(--bg);
+margin-top:-40px;
+}
+
+.badges-row{display:flex;gap:8px;flex-wrap:wrap;margin:5px 0}
+.badge{
+width:36px;height:36px;
+background:var(--surface2);
+border-radius:10px;
+display:flex;align-items:center;justify-content:center;
+position:relative;
+}
+.badge img{width:20px;height:20px}
+.badge-tip{
+position:absolute;bottom:120%;
+background:#111;padding:4px 8px;border-radius:6px;font-size:11px;
+display:none;
+}
+.badge:hover .badge-tip{display:block}
+
+.discord-avatar img{width:60px;height:60px;border-radius:50%}
+.discord-status-dot{
+width:12px;height:12px;border-radius:50%;
+display:inline-block;margin-left:5px;
+}
+
+.progress{height:4px;background:#222;margin-top:10px;cursor:pointer}
+.progress-fill{height:100%;background:var(--accent);width:0%}
+</style>
+</head>
+
+<body>
+
+<div class="bg-wrap"></div>
+
+<!-- PROFILE -->
+<div class="card">
+<div class="profile-banner"></div>
+
+<div style="display:flex;align-items:center;gap:15px;">
+<img src="images/pfp.png" class="avatar">
+
+<div>
+<h2>username</h2>
+
+<!-- BADGES UNDER NAME -->
+<div class="badges-row" id="badges"></div>
+
+<p>your bio here</p>
+</div>
+</div>
+</div>
+
+<!-- DISCORD -->
+<div class="card">
+<h3>Discord</h3>
+<div class="discord-avatar">
+<img id="discord-avatar">
+<span id="status-dot" class="discord-status-dot"></span>
+</div>
+<div class="discord-name"></div>
+<div class="discord-handle"></div>
+<div class="discord-badge-row"></div>
+<div class="discord-activity"></div>
+</div>
+
+<!-- MUSIC -->
+<div class="card">
+<h3>Music</h3>
+
+<div id="music-title"></div>
+<div id="music-artist"></div>
+
+<button id="btn-prev">⏮</button>
+<button id="btn-play">▶</button>
+<button id="btn-next">⏭</button>
+
+<div class="progress" id="progress">
+<div class="progress-fill" id="progress-fill"></div>
+</div>
+
+<iframe id="spotify-embed"
+style="border-radius:12px;margin-top:10px"
+width="100%"
+height="80"
+frameborder="0"
+allow="autoplay; encrypted-media;">
+</iframe>
+
+<audio id="audio-player"></audio>
+</div>
+
+<script>
+const CONFIG={
+badges:[
+{img:'images/badge1.png',name:'OG'},
+{img:'images/badge2.png',name:'Pro'},
+{img:'images/badge3.png',name:'Dev'},
+{img:'images/badge4.png',name:'VIP'},
+{img:'images/badge5.png',name:'Rare'}
+],
+tracks:[
+{title:'Track 1',artist:'Artist 1',src:'music/track1.mp3'},
+{title:'Track 2',artist:'Artist 2',src:'music/track2.mp3'},
+{title:'Track 3',artist:'Artist 3',src:'music/track3.mp3'}
+]
+};
+
+// BADGES
+const wrap=document.getElementById('badges');
+CONFIG.badges.forEach(b=>{
+const el=document.createElement('div');
+el.className='badge';
+el.innerHTML=`${b.img?`<img src="${b.img}">`:''}
+<div class="badge-tip">${b.name}</div>`;
+wrap.appendChild(el);
+});
+
+// MUSIC
+const audio=document.getElementById('audio-player');
+const play=document.getElementById('btn-play');
+const next=document.getElementById('btn-next');
+const prev=document.getElementById('btn-prev');
+const fill=document.getElementById('progress-fill');
+
+let cur=0;
+
+function load(i,auto=false){
+cur=i;
+const t=CONFIG.tracks[i];
+audio.src=t.src;
+document.getElementById('music-title').textContent=t.title;
+document.getElementById('music-artist').textContent=t.artist;
+
+if(auto){
+audio.play().then(()=>play.textContent='⏸').catch(()=>{});
+}
+}
+
+play.onclick=()=>{
+if(audio.paused){audio.play();play.textContent='⏸';}
+else{audio.pause();play.textContent='▶';}
+};
+
+next.onclick=()=>load((cur+1)%CONFIG.tracks.length,true);
+prev.onclick=()=>load((cur-1+CONFIG.tracks.length)%CONFIG.tracks.length,true);
+
+audio.onended=()=>load((cur+1)%CONFIG.tracks.length,true);
+
+audio.ontimeupdate=()=>{
+if(audio.duration){
+fill.style.width=(audio.currentTime/audio.duration*100)+'%';
+}
+};
+
+document.getElementById('progress').onclick=e=>{
+const rect=e.target.getBoundingClientRect();
+audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
+};
+
+load(0);
+
+// DISCORD
+(function(){
+const USER_ID="YOUR_DISCORD_ID";
+
+const nameEl=document.querySelector('.discord-name');
+const handleEl=document.querySelector('.discord-handle');
+const avatar=document.getElementById('discord-avatar');
+const statusDot=document.getElementById('status-dot');
+const activity=document.querySelector('.discord-activity');
+const badgeRow=document.querySelector('.discord-badge-row');
+
+const colors={
+online:"#3ba55d",
+idle:"#faa61a",
+dnd:"#ed4245",
+offline:"#747f8d"
+};
+
+const BADGES={
+512:"Early Supporter",
+64:"HypeSquad",
+128:"Brilliance",
+256:"Balance"
+};
+
+function render(flags){
+badgeRow.innerHTML="";
+Object.keys(BADGES).forEach(f=>{
+if(flags & f){
+const span=document.createElement('span');
+span.textContent=BADGES[f];
+badgeRow.appendChild(span);
+}
+});
+}
+
+async function loadDiscord(){
+try{
+const res=await fetch(`https://api.lanyard.rest/v1/users/${USER_ID}`);
+const json=await res.json();
+
+if(!json.success || !json.data){
+activity.textContent="Discord not detected";
+return;
+}
+
+const d=json.data;
+
+nameEl.textContent=d.discord_user.username;
+handleEl.textContent="#"+d.discord_user.discriminator;
+avatar.src=`https://cdn.discordapp.com/avatars/${USER_ID}/${d.discord_user.avatar}.png`;
+
+statusDot.style.background=colors[d.discord_status]||"#747f8d";
+
+render(d.discord_user.public_flags||0);
+
+if(d.listening_to_spotify && d.spotify){
+activity.textContent=`Listening: ${d.spotify.song} - ${d.spotify.artist}`;
+
+document.getElementById('music-title').textContent=d.spotify.song;
+document.getElementById('music-artist').textContent=d.spotify.artist;
+
+document.getElementById('spotify-embed').src=
+`https://open.spotify.com/embed/track/${d.spotify.track_id}`;
+}
+else if(d.activities.length){
+activity.textContent=d.activities[0].name;
+}
+else{
+activity.textContent=d.discord_status;
+}
+
+}catch(e){
+console.log("Discord error",e);
+activity.textContent="Failed to load Discord";
+}
+}
+
+loadDiscord();
+setInterval(loadDiscord,15000);
+})();
+</script>
+
+</body>
+</html>
