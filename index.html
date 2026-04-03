@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>profile · bio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+--bg:#0a0a0f;
+--surface:rgba(255,255,255,0.04);
+--surface2:rgba(255,255,255,0.07);
+--border:rgba(255,255,255,0.08);
+--border2:rgba(255,255,255,0.14);
+--accent:#7c5cfc;
+--accent2:#5c9fff;
+--accent3:#ff5caa;
+--text:#e8e8f0;
+--muted:#6b6b80;
+--dim:rgba(255,255,255,0.35);
+--online:#3ba55d;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:'Outfit',sans-serif;
+background:var(--bg);
+color:var(--text);
+min-height:100vh;
+}
+
+/* BACKGROUND FIX */
+.bg-wrap{
+position:fixed;inset:0;
+background:url('images/background.png') center/cover no-repeat;
+z-index:0;
+}
+
+/* GRID + OVERLAY (original style preserved) */
+.bg-overlay{
+position:fixed;inset:0;
+background:linear-gradient(rgba(10,10,15,0.75),rgba(10,10,15,0.75));
+}
+
+/* CARD */
+.card{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:16px;
+backdrop-filter:blur(20px);
+padding:20px;
+margin:12px auto;
+max-width:680px;
+}
+
+/* BANNER FIX */
+.profile-banner{
+height:110px;
+border-radius:16px 16px 0 0;
+background:url('images/banner.png') center/cover no-repeat;
+margin:-20px -20px 10px -20px;
+}
+
+/* PROFILE */
+.profile-username{font-size:22px;font-weight:700}
+.profile-bio{margin-top:10px;color:var(--dim)}
+
+/* BADGES */
+.badges-row{display:flex;gap:8px;flex-wrap:wrap}
+.badge{
+width:36px;height:36px;
+border-radius:10px;
+background:var(--surface2);
+border:1px solid var(--border);
+display:flex;align-items:center;justify-content:center;
+position:relative;
+}
+.badge img{width:20px;height:20px}
+.badge-tip{
+position:absolute;
+bottom:120%;
+background:#1a1a2e;
+border:1px solid var(--border2);
+padding:4px 8px;
+border-radius:6px;
+font-size:11px;
+display:none;
+}
+.badge:hover .badge-tip{display:block}
+
+/* DISCORD */
+.discord-avatar{position:relative}
+.discord-avatar img{width:60px;height:60px;border-radius:50%}
+.discord-status-dot{
+position:absolute;bottom:0;right:0;
+width:14px;height:14px;border-radius:50%;
+border:2px solid var(--bg);
+}
+.discord-badge{
+padding:3px 8px;
+border-radius:5px;
+font-size:10px;
+background:rgba(88,101,242,0.2);
+border:1px solid rgba(88,101,242,0.3);
+margin:2px;
+display:inline-block;
+}
+
+/* MUSIC */
+.music-controls button{margin:5px}
+.progress{height:4px;background:rgba(255,255,255,0.1);cursor:pointer}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+</style>
+</head>
+
+<body>
+
+<div class="bg-wrap"></div>
+<div class="bg-overlay"></div>
+
+<div class="card">
+<div class="profile-banner"></div>
+<div class="profile-username">username</div>
+<div class="profile-bio">your bio here</div>
+</div>
+
+<div class="card">
+<div class="badges-row" id="badges"></div>
+</div>
+
+<div class="card">
+<div class="discord-avatar">
+<img id="discord-avatar">
+<div class="discord-status-dot" id="status-dot"></div>
+</div>
+<div class="discord-name"></div>
+<div class="discord-handle"></div>
+<div class="discord-badge-row"></div>
+<div class="discord-activity"></div>
+</div>
+
+<div class="card">
+<div id="music-title">Select a track</div>
+<div id="music-artist"></div>
+
+<div class="music-controls">
+<button id="btn-prev">⏮</button>
+<button id="btn-play">▶</button>
+<button id="btn-next">⏭</button>
+</div>
+
+<div class="progress" id="progress">
+<div class="progress-fill" id="progress-fill"></div>
+</div>
+
+<audio id="audio-player"></audio>
+</div>
+
+<script>
+// CONFIG
+const CONFIG={
+badges:[
+{img:'images/badge1.png',name:'OG'},
+{emoji:'🔥',name:'Fire'}
+],
+tracks:[
+{title:'Track 1',artist:'Artist',src:'music/track1.mp3'}
+]
+};
+
+// BADGES
+const wrap=document.getElementById('badges');
+CONFIG.badges.forEach(b=>{
+const el=document.createElement('div');
+el.className='badge';
+el.innerHTML=`
+${b.img?`<img src="${b.img}">`:b.emoji}
+<div class="badge-tip">${b.name}</div>`;
+wrap.appendChild(el);
+});
+
+// MUSIC
+const audio=document.getElementById('audio-player');
+const play=document.getElementById('btn-play');
+const next=document.getElementById('btn-next');
+const prev=document.getElementById('btn-prev');
+const fill=document.getElementById('progress-fill');
+
+let cur=0;
+
+function load(i){
+cur=i;
+audio.src=CONFIG.tracks[i].src;
+document.getElementById('music-title').textContent=CONFIG.tracks[i].title;
+document.getElementById('music-artist').textContent=CONFIG.tracks[i].artist;
+}
+
+play.onclick=()=>{
+if(audio.paused){audio.play();play.textContent='⏸';}
+else{audio.pause();play.textContent='▶';}
+};
+
+next.onclick=()=>load((cur+1)%CONFIG.tracks.length);
+prev.onclick=()=>load((cur-1+CONFIG.tracks.length)%CONFIG.tracks.length);
+
+audio.ontimeupdate=()=>{
+if(audio.duration){
+fill.style.width=(audio.currentTime/audio.duration*100)+'%';
+}
+};
+
+document.getElementById('progress').onclick=e=>{
+const rect=e.target.getBoundingClientRect();
+audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
+};
+
+load(0);
+
+// DISCORD (REAL)
+(function(){
+const USER_ID="YOUR_DISCORD_ID";
+
+const nameEl=document.querySelector('.discord-name');
+const handleEl=document.querySelector('.discord-handle');
+const avatar=document.getElementById('discord-avatar');
+const statusDot=document.getElementById('status-dot');
+const activity=document.querySelector('.discord-activity');
+const badgeRow=document.querySelector('.discord-badge-row');
+
+const colors={
+online:"#3ba55d",
+idle:"#faa61a",
+dnd:"#ed4245",
+offline:"#747f8d"
+};
+
+const BADGES={
+512:"Early Supporter",
+64:"HypeSquad",
+128:"Brilliance",
+256:"Balance"
+};
+
+function render(flags){
+badgeRow.innerHTML="";
+Object.keys(BADGES).forEach(f=>{
+if(flags & f){
+const span=document.createElement('span');
+span.className='discord-badge';
+span.textContent=BADGES[f];
+badgeRow.appendChild(span);
+}
+});
+}
+
+async function loadDiscord(){
+const r=await fetch(`https://api.lanyard.rest/v1/users/${USER_ID}`);
+const j=await r.json();
+if(!j.success)return;
+
+const d=j.data;
+
+nameEl.textContent=d.discord_user.username;
+handleEl.textContent="#"+d.discord_user.discriminator;
+avatar.src=`https://cdn.discordapp.com/avatars/${USER_ID}/${d.discord_user.avatar}.png`;
+
+statusDot.style.background=colors[d.discord_status]||"#747f8d";
+
+render(d.discord_user.public_flags||0);
+
+if(d.spotify){
+activity.textContent=`Listening: ${d.spotify.song} - ${d.spotify.artist}`;
+
+document.getElementById('music-title').textContent=d.spotify.song;
+document.getElementById('music-artist').textContent=d.spotify.artist;
+}else{
+activity.textContent=d.discord_status;
+}
+}
+
+loadDiscord();
+setInterval(loadDiscord,15000);
+})();
+</script>
+
+</body>
+</html>
