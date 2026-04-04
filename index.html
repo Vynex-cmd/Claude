@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --accent: #a78bfa;
+  --accent2: #38bdf8;
+  --accent3: #f472b6;
+  --glow: rgba(167,139,250,0.35);
+  --glow2: rgba(56,189,248,0.3);
+  --bg: #06060f;
+  --card: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --text: #e2e8f0;
+  --muted: #64748b;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+html,body{width:100%;min-height:100vh;overflow-x:hidden}
+
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  cursor:none;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cursor{
+  position:fixed;width:12px;height:12px;
+  border-radius:50%;background:var(--accent);
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform 0.08s,background 0.2s;
+  mix-blend-mode:screen;
+  box-shadow:0 0 20px var(--accent),0 0 40px var(--accent);
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;
+  border-radius:50%;border:1px solid rgba(167,139,250,0.5);
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform 0.18s ease,width 0.2s,height 0.2s;
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring{
+  width:56px;height:56px;
+  border-color:var(--accent2);
+}
+
+/* ── CANVAS BG ── */
+#bg-canvas{
+  position:fixed;inset:0;z-index:0;
+  opacity:0.7;
+}
+
+/* ── SCANLINES ── */
+.scanlines{
+  position:fixed;inset:0;z-index:1;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.07) 2px,
+    rgba(0,0,0,0.07) 4px
+  );
+}
+
+/* ── NOISE OVERLAY ── */
+.noise{
+  position:fixed;inset:0;z-index:2;
+  pointer-events:none;
+  opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+  background-size:128px 128px;
+  animation:noiseAnim 0.5s steps(2) infinite;
+}
+@keyframes noiseAnim{
+  0%{background-position:0 0}
+  25%{background-position:-10px 5px}
+  50%{background-position:5px -10px}
+  75%{background-position:-5px 15px}
+  100%{background-position:10px -5px}
+}
+
+/* ── ENTER SCREEN ── */
+#enter-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:var(--bg);
+  transition:opacity 0.8s ease, visibility 0.8s;
+}
+#enter-screen.hidden{
+  opacity:0;visibility:hidden;pointer-events:none;
+}
+
+.enter-glitch{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(2rem,8vw,5rem);
+  font-weight:800;
+  letter-spacing:-0.02em;
+  color:#fff;
+  position:relative;
+  text-align:center;
+  line-height:1.1;
+}
+.enter-glitch::before,
+.enter-glitch::after{
+  content:attr(data-text);
+  position:absolute;left:0;top:0;
+  width:100%;height:100%;
+}
+.enter-glitch::before{
+  color:var(--accent3);
+  animation:glitch1 3s infinite;
+  clip-path:polygon(0 30%,100% 30%,100% 50%,0 50%);
+}
+.enter-glitch::after{
+  color:var(--accent2);
+  animation:glitch2 3s infinite;
+  clip-path:polygon(0 60%,100% 60%,100% 75%,0 75%);
+}
+@keyframes glitch1{
+  0%,90%,100%{transform:translate(0)}
+  92%{transform:translate(-4px,1px)}
+  94%{transform:translate(4px,-1px)}
+  96%{transform:translate(-2px,2px)}
+}
+@keyframes glitch2{
+  0%,88%,100%{transform:translate(0)}
+  90%{transform:translate(4px,-2px)}
+  93%{transform:translate(-4px,1px)}
+  96%{transform:translate(2px,-1px)}
+}
+
+.enter-sub{
+  font-family:'Space Mono',monospace;
+  font-size:0.75rem;
+  letter-spacing:0.25em;
+  color:var(--muted);
+  margin-top:1.5rem;
+  text-transform:uppercase;
+}
+
+.enter-btn{
+  margin-top:3rem;
+  padding:1rem 3rem;
+  background:transparent;
+  border:1px solid var(--accent);
+  color:var(--accent);
+  font-family:'Space Mono',monospace;
+  font-size:0.8rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  cursor:none;
+  position:relative;
+  overflow:hidden;
+  transition:color 0.3s;
+}
+.enter-btn::before{
+  content:'';
+  position:absolute;inset:0;
+  background:var(--accent);
+  transform:translateX(-101%);
+  transition:transform 0.3s ease;
+  z-index:-1;
+}
+.enter-btn:hover{color:var(--bg)}
+.enter-btn:hover::before{transform:translateX(0)}
+
+.enter-lines{
+  position:absolute;inset:0;
+  overflow:hidden;pointer-events:none;
+}
+.enter-line{
+  position:absolute;
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  width:60%;
+  left:20%;
+  animation:sweepLine 4s ease-in-out infinite;
+  opacity:0;
+}
+.enter-line:nth-child(1){animation-delay:0s}
+.enter-line:nth-child(2){animation-delay:1.3s}
+.enter-line:nth-child(3){animation-delay:2.6s}
+@keyframes sweepLine{
+  0%{top:-2px;opacity:0}
+  10%{opacity:0.6}
+  90%{opacity:0.2}
+  100%{top:100%;opacity:0}
+}
+
+/* ── MAIN WRAPPER ── */
+#main{
+  position:relative;z-index:10;
+  max-width:680px;
+  margin:0 auto;
+  padding:24px 16px 80px;
+  opacity:0;
+  animation:fadeUp 0.8s ease 0.3s forwards;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:20px;
+  margin-bottom:16px;
+  position:relative;
+  overflow:hidden;
+  backdrop-filter:blur(20px);
+  transition:border-color 0.3s,box-shadow 0.3s;
+}
+.card:hover{
+  border-color:rgba(167,139,250,0.2);
+  box-shadow:0 0 40px rgba(167,139,250,0.06),0 8px 32px rgba(0,0,0,0.4);
+}
+.card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0.4;
+}
+
+/* ── BANNER + AVATAR ── */
+.banner{
+  height:130px;
+  background:url('images/banner.png') center/cover,
+    linear-gradient(135deg,#1a0533 0%,#0d1f3c 50%,#0f0f1a 100%);
+  border-radius:14px;
+  margin:-20px -20px 0;
+  position:relative;
+  overflow:hidden;
+}
+.banner::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 50%,rgba(6,6,15,0.8));
+}
+.banner-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(167,139,250,0.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(167,139,250,0.08) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+.profile-row{
+  display:flex;gap:16px;align-items:flex-end;
+  margin-top:-30px;padding-top:10px;
+}
+
+.avatar-wrap{
+  position:relative;flex-shrink:0;
+}
+.avatar{
+  width:84px;height:84px;
+  border-radius:50%;
+  border:3px solid var(--bg);
+  object-fit:cover;
+  position:relative;z-index:1;
+  box-shadow:0 0 0 1px var(--border);
+  transition:transform 0.3s,box-shadow 0.3s;
+}
+.avatar:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 30px var(--glow);
+}
+.avatar-ring{
+  position:absolute;inset:-6px;
+  border-radius:50%;
+  background:conic-gradient(var(--accent),var(--accent2),var(--accent3),var(--accent));
+  animation:spinRing 4s linear infinite;
+  z-index:0;
+  opacity:0.7;
+}
+.avatar-ring-mask{
+  position:absolute;inset:-3px;
+  border-radius:50%;
+  background:var(--bg);
+  z-index:0;
+}
+@keyframes spinRing{to{transform:rotate(360deg)}}
+
+.username{
+  font-size:1.35rem;font-weight:800;
+  color:#fff;line-height:1.1;
+}
+.user-handle{
+  font-family:'Space Mono',monospace;
+  font-size:0.7rem;color:var(--muted);
+  margin-top:2px;letter-spacing:0.1em;
+}
+.bio{
+  font-size:0.85rem;color:#94a3b8;
+  margin-top:6px;line-height:1.5;
+}
+
+/* ── BADGES ── */
+.badges{
+  display:flex;gap:6px;flex-wrap:wrap;
+  margin-top:8px;
+}
+.badge-wrap{
+  position:relative;
+  width:28px;height:28px;
+  transition:transform 0.2s;
+}
+.badge-wrap:hover{transform:scale(1.3) translateY(-4px)}
+.badge-wrap img{width:100%;height:100%;object-fit:contain}
+.badge-tip{
+  position:absolute;bottom:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.9);
+  border:1px solid var(--border);
+  color:#fff;font-family:'Space Mono',monospace;font-size:0.6rem;
+  padding:3px 7px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity 0.2s;
+}
+.badge-wrap:hover .badge-tip{opacity:1}
+
+/* ── SECTION LABEL ── */
+.section-label{
+  font-family:'Space Mono',monospace;
+  font-size:0.6rem;letter-spacing:0.3em;
+  text-transform:uppercase;color:var(--muted);
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.section-label::after{
+  content:'';flex:1;height:1px;
+  background:var(--border);
+}
+
+/* ── DISCORD STATUS ── */
+.discord-row{
+  display:flex;gap:14px;align-items:center;
+}
+.disc-avatar-wrap{position:relative;flex-shrink:0}
+.disc-avatar{
+  width:56px;height:56px;border-radius:16px;object-fit:cover;
+  border:2px solid var(--border);
+  background:#1e1e2e;
+}
+.status-dot{
+  position:absolute;bottom:-2px;right:-2px;
+  width:14px;height:14px;border-radius:50%;
+  border:2.5px solid var(--bg);
+  background:var(--muted);
+  transition:background 0.3s,box-shadow 0.3s;
+}
+.status-dot.online{background:#22c55e;box-shadow:0 0 10px #22c55e}
+.status-dot.idle{background:#f59e0b;box-shadow:0 0 10px #f59e0b}
+.status-dot.dnd{background:#ef4444;box-shadow:0 0 10px #ef4444}
+.status-dot.offline{background:#475569}
+
+.disc-name{font-weight:700;font-size:1rem}
+.disc-tag{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted)}
+.disc-status-text{
+  font-family:'Space Mono',monospace;
+  font-size:0.65rem;color:var(--accent2);
+  margin-top:2px;
+  display:flex;align-items:center;gap:5px;
+}
+.disc-status-text::before{content:'◉';font-size:0.5rem}
+
+/* ── SPOTIFY CARD ── */
+.spotify-wrap{
+  background:rgba(30,215,96,0.04);
+  border:1px solid rgba(30,215,96,0.12);
+  border-radius:14px;
+  padding:14px;
+  margin-top:14px;
+  display:flex;gap:14px;align-items:center;
+  transition:box-shadow 0.3s,border-color 0.3s;
+  position:relative;overflow:hidden;
+}
+.spotify-wrap:hover{
+  border-color:rgba(30,215,96,0.3);
+  box-shadow:0 0 30px rgba(30,215,96,0.1);
+}
+.spotify-wrap::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(30,215,96,0.04),transparent);
+}
+
+.cover-wrap{
+  position:relative;flex-shrink:0;
+}
+.spotify-cover{
+  width:64px;height:64px;border-radius:10px;
+  object-fit:cover;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  animation:coverIn 0.4s ease;
+}
+@keyframes coverIn{
+  from{opacity:0;transform:scale(0.85) rotate(-4deg)}
+  to{opacity:1;transform:scale(1) rotate(0deg)}
+}
+.vinyl{
+  position:absolute;top:50%;right:-20px;
+  transform:translateY(-50%);
+  width:48px;height:48px;border-radius:50%;
+  background:
+    radial-gradient(circle at center,#111 30%,#222 30%,#222 35%,#111 35%),
+    conic-gradient(#1a1a1a,#333,#1a1a1a,#333,#1a1a1a);
+  box-shadow:0 4px 16px rgba(0,0,0,0.6);
+  animation:spin 3s linear infinite;
+  opacity:0;
+  transition:opacity 0.3s;
+}
+.spotify-wrap.playing .vinyl{opacity:1}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+
+.spotify-info{flex:1;min-width:0}
+.spotify-song{
+  font-weight:700;font-size:0.9rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.spotify-artist{
+  font-family:'Space Mono',monospace;
+  font-size:0.65rem;color:var(--muted);margin-top:2px;
+}
+.spotify-bar{
+  display:flex;gap:2px;align-items:flex-end;
+  margin-top:8px;height:16px;
+}
+.spotify-bar span{
+  display:inline-block;width:3px;border-radius:2px;
+  background:#1ed760;
+  animation:barBounce 0.8s ease-in-out infinite alternate;
+}
+.spotify-bar span:nth-child(1){height:6px;animation-delay:0s}
+.spotify-bar span:nth-child(2){height:14px;animation-delay:0.1s}
+.spotify-bar span:nth-child(3){height:8px;animation-delay:0.2s}
+.spotify-bar span:nth-child(4){height:12px;animation-delay:0.15s}
+.spotify-bar span:nth-child(5){height:5px;animation-delay:0.05s}
+@keyframes barBounce{
+  from{transform:scaleY(0.4)}
+  to{transform:scaleY(1)}
+}
+.spotify-bar.paused span{animation-play-state:paused}
+
+.spotify-logo{
+  flex-shrink:0;opacity:0.7;
+}
+
+/* ── SPOTIFY EMBED ── */
+.spotify-embed-wrap{
+  margin-top:12px;
+  border-radius:12px;overflow:hidden;
+  border:1px solid rgba(30,215,96,0.1);
+}
+.spotify-embed-wrap iframe{
+  display:block;border:0;
+  border-radius:12px;
+}
+
+/* ── MUSIC PLAYER ── */
+.player-track{
+  display:flex;gap:14px;align-items:center;
+  margin-bottom:14px;
+}
+.player-cover{
+  width:56px;height:56px;border-radius:10px;
+  background:linear-gradient(135deg,#1a0533,#0d1f3c);
+  object-fit:cover;
+  box-shadow:0 4px 16px rgba(0,0,0,0.5);
+  flex-shrink:0;
+}
+.player-title{font-weight:700;font-size:0.95rem}
+.player-artist{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:2px}
+
+.progress-bar{
+  height:3px;background:rgba(255,255,255,0.08);
+  border-radius:3px;margin:10px 0;
+  position:relative;cursor:pointer;overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:3px;width:0%;transition:width 0.5s linear;
+  position:relative;
+}
+.progress-fill::after{
+  content:'';
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:10px;height:10px;border-radius:50%;
+  background:#fff;box-shadow:0 0 8px var(--accent);
+}
+
+.player-controls{
+  display:flex;align-items:center;justify-content:center;gap:20px;
+}
+.ctrl-btn{
+  background:none;border:none;cursor:none;
+  color:var(--muted);font-size:1rem;
+  transition:color 0.2s,transform 0.2s;padding:8px;
+}
+.ctrl-btn:hover{color:#fff;transform:scale(1.15)}
+.play-btn{
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;color:#fff;
+  box-shadow:0 0 24px var(--glow),0 4px 16px rgba(0,0,0,0.4);
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.play-btn:hover{transform:scale(1.08);box-shadow:0 0 36px var(--glow)}
+
+/* ── LINKS ── */
+.links-grid{
+  display:flex;flex-direction:column;gap:10px;
+}
+.link-item{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 16px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:12px;
+  text-decoration:none;
+  color:var(--text);
+  transition:background 0.25s,border-color 0.25s,transform 0.2s,box-shadow 0.25s;
+  position:relative;overflow:hidden;
+  cursor:none;
+}
+.link-item::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.02),transparent);
+  transform:translateX(-100%);
+  transition:transform 0.5s;
+}
+.link-item:hover::after{transform:translateX(100%)}
+.link-item:hover{
+  background:rgba(255,255,255,0.06);
+  border-color:rgba(167,139,250,0.25);
+  transform:translateX(4px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),-4px 0 0 var(--accent);
+}
+.link-icon{
+  width:36px;height:36px;border-radius:10px;
+  object-fit:contain;
+  background:rgba(255,255,255,0.05);
+  padding:6px;flex-shrink:0;
+}
+.link-label{font-weight:600;font-size:0.9rem}
+.link-sub{font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:1px}
+.link-arrow{
+  margin-left:auto;color:var(--muted);font-size:0.8rem;
+  transition:transform 0.2s,color 0.2s;
+}
+.link-item:hover .link-arrow{transform:translate(3px,-3px);color:var(--accent)}
+
+/* ── FOOTER ── */
+.footer{
+  text-align:center;
+  font-family:'Space Mono',monospace;
+  font-size:0.6rem;letter-spacing:0.2em;
+  color:var(--muted);margin-top:32px;
+  text-transform:uppercase;
+}
+
+/* ── REVEAL ANIMS ── */
+.card{
+  opacity:0;
+  animation:cardReveal 0.6s ease forwards;
+}
+.card:nth-child(1){animation-delay:0.1s}
+.card:nth-child(2){animation-delay:0.2s}
+.card:nth-child(3){animation-delay:0.3s}
+.card:nth-child(4){animation-delay:0.4s}
+@keyframes cardReveal{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+</style>
+
+</head>
+<body>
+
+<!-- CURSOR -->
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- CANVAS BG -->
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="scanlines"></div>
+<div class="noise"></div>
+
+<!-- ══════════════════ ENTER SCREEN ══════════════════ -->
+
+<div id="enter-screen">
+  <div class="enter-lines">
+    <div class="enter-line"></div>
+    <div class="enter-line"></div>
+    <div class="enter-line"></div>
+  </div>
+  <div class="enter-glitch" data-text="username">username</div>
+  <div class="enter-sub">// personal space</div>
+  <button class="enter-btn" onclick="enterSite()">[ enter ]</button>
+</div>
+
+<!-- ══════════════════ MAIN ══════════════════ -->
+
+<div id="main" style="display:none">
+
+  <!-- PROFILE CARD -->
+
+  <div class="card">
+    <div class="banner"><div class="banner-grid"></div></div>
+
+```
+<div class="profile-row">
+  <div class="avatar-wrap">
+    <div class="avatar-ring"></div>
+    <div class="avatar-ring-mask"></div>
+    <img src="images/pfp.png" class="avatar" onerror="this.src='https://placehold.co/84x84/1a0533/a78bfa?text=U'">
+  </div>
+  <div style="flex:1;min-width:0;padding-bottom:4px">
+    <div class="username">username</div>
+    <div class="user-handle">@handle • they/them</div>
+    <div class="bio">your bio here — just vibing in the void 🌌</div>
+  </div>
+</div>
+
+<div class="badges" id="badges" style="margin-top:12px"></div>
+```
+
+  </div>
+
+  <!-- DISCORD + SPOTIFY CARD -->
+
+  <div class="card">
+    <div class="section-label">discord presence</div>
+
+```
+<div class="discord-row">
+  <div class="disc-avatar-wrap">
+    <img id="discord-avatar" class="disc-avatar" src="images/pfp.png" onerror="this.src='https://placehold.co/56x56/1e1e2e/a78bfa?text=D'">
+    <div class="status-dot" id="status-dot"></div>
+  </div>
+  <div>
+    <div class="disc-name" id="discord-name">loading...</div>
+    <div class="disc-tag" id="discord-handle">#0000</div>
+    <div class="disc-status-text" id="discord-status">fetching status</div>
+  </div>
+</div>
+
+<div class="spotify-wrap" id="spotify-wrap">
+  <div class="cover-wrap">
+    <img id="cover" class="spotify-cover" src="https://placehold.co/64x64/1a1a2e/1ed760?text=♫">
+    <div class="vinyl" id="vinyl"></div>
+  </div>
+  <div class="spotify-info">
+    <div class="spotify-song" id="song">Not listening</div>
+    <div class="spotify-artist" id="artist">—</div>
+    <div class="spotify-bar" id="spotify-bar">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+  <svg class="spotify-logo" width="24" height="24" viewBox="0 0 24 24" fill="#1ed760">
+    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+  </svg>
+</div>
+
+<div class="spotify-embed-wrap" style="margin-top:14px">
+  <iframe id="spotify-iframe"
+    src="https://open.spotify.com/embed/track/4piafr7YSZHYgPvH4n4NeE?utm_source=generator&theme=0"
+    width="100%" height="80"
+    frameborder="0"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy">
+  </iframe>
+</div>
+```
+
+  </div>
+
+  <!-- MUSIC PLAYER CARD -->
+
+  <div class="card">
+    <div class="section-label">local tracks</div>
+
+```
+<div class="player-track">
+  <img class="player-cover" id="p-cover" src="https://placehold.co/56x56/1a0533/a78bfa?text=♪">
+  <div>
+    <div class="player-title" id="p-title">Track 1</div>
+    <div class="player-artist" id="p-artist">Artist</div>
+  </div>
+</div>
+
+<div class="progress-bar" id="prog-bar">
+  <div class="progress-fill" id="prog-fill"></div>
+</div>
+
+<div style="display:flex;justify-content:space-between;
+  font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:4px">
+  <span id="time-cur">0:00</span>
+  <span id="time-tot">0:00</span>
+</div>
+
+<div class="player-controls" style="margin-top:14px">
+  <button class="ctrl-btn" id="btn-prev">⏮</button>
+  <button class="ctrl-btn play-btn" id="btn-play">▶</button>
+  <button class="ctrl-btn" id="btn-next">⏭</button>
+</div>
+
+<audio id="audio"></audio>
+```
+
+  </div>
+
+  <!-- LINKS CARD -->
+
+  <div class="card">
+    <div class="section-label">links</div>
+    <div class="links-grid" id="links-grid"></div>
+  </div>
+
+  <div class="footer">made with ♥ // v2.0</div>
+</div>
+
+<script>
+/* ══════════════ CONFIG — EDIT THIS ══════════════ */
+const CONFIG = {
+  userId: "YOUR_DISCORD_ID",
+  username: "username",
+  handle: "@handle",
+  bio: "your bio here — just vibing in the void 🌌",
+
+  badges: [
+    { img: "images/badge1.png", tip: "Badge 1" },
+    { img: "images/badge2.png", tip: "Badge 2" },
+    { img: "images/badge3.png", tip: "Badge 3" },
+    { img: "images/badge4.png", tip: "Badge 4" },
+    { img: "images/badge5.png", tip: "Badge 5" },
+  ],
+
+  tracks: [
+    { t: "Track 1", a: "Artist", s: "music/track1.mp3" },
+    { t: "Track 2", a: "Artist", s: "music/track2.mp3" },
+    { t: "Track 3", a: "Artist", s: "music/track3.mp3" },
+  ],
+
+  // 5 custom links — swap logo, label, sub, href
+  links: [
+    { logo: "images/link1.png",  label: "Twitter / X",   sub: "@yourhandle",   href: "https://twitter.com" },
+    { logo: "images/link2.png",  label: "GitHub",         sub: "github.com/you", href: "https://github.com" },
+    { logo: "images/link3.png",  label: "Discord",        sub: "join my server", href: "https://discord.gg" },
+    { logo: "images/link4.png",  label: "Spotify",        sub: "what i'm into",  href: "https://spotify.com" },
+    { logo: "images/link5.png",  label: "Custom Link",    sub: "your link here", href: "https://example.com" },
+  ],
+
+  fallback: {
+    username: "username",
+    tag: "#0000",
+    avatar: "images/pfp.png",
+    song: "Fallback Song",
+    artist: "Unknown Artist",
+    cover: "https://placehold.co/64x64/1a1a2e/1ed760?text=♫",
+    track: "4piafr7YSZHYgPvH4n4NeE",
+  }
+};
+/* ════════════════════════════════════════════════ */
+
+
+/* ── CURSOR ── */
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animRing(){
+  rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+
+
+/* ── CANVAS PARTICLES ── */
+(function(){
+  const c=document.getElementById('bg-canvas');
+  const ctx=c.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
+  resize();window.addEventListener('resize',()=>{resize();init()});
+
+  function init(){
+    pts=[];
+    const n=Math.floor(W*H/14000);
+    for(let i=0;i<n;i++){
+      pts.push({
+        x:Math.random()*W,y:Math.random()*H,
+        vx:(Math.random()-0.5)*0.25,vy:(Math.random()-0.5)*0.25,
+        r:Math.random()*1.5+0.3,
+        a:Math.random()
+      });
+    }
+  }
+  init();
+
+  const COLS=['167,139,250','56,189,248','244,114,182'];
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){
+      const p=pts[i];
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      const col=COLS[i%COLS.length];
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${col},${0.4+Math.sin(Date.now()*0.001+i)*0.3})`;
+      ctx.fill();
+
+      // connect nearby
+      for(let j=i+1;j<pts.length;j++){
+        const q=pts[j];
+        const dx=p.x-q.x,dy=p.y-q.y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<130){
+          ctx.beginPath();
+          ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle=`rgba(${col},${(1-dist/130)*0.12})`;
+          ctx.lineWidth=0.5;ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+
+/* ── ENTER SCREEN ── */
+function enterSite(){
+  const es=document.getElementById('enter-screen');
+  es.classList.add('hidden');
+  const main=document.getElementById('main');
+  main.style.display='block';
+  setTimeout(()=>main.style.opacity='1',50);
+}
+// Allow keyboard enter too
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!document.getElementById('enter-screen').classList.contains('hidden')){
+    enterSite();
+  }
+});
+
+
+/* ── BADGES ── */
+const badgesEl=document.getElementById('badges');
+CONFIG.badges.forEach(b=>{
+  const wrap=document.createElement('div');
+  wrap.className='badge-wrap';
+  const img=document.createElement('img');
+  img.src=b.img;
+  img.onerror=()=>img.src='https://placehold.co/28x28/1a1a2e/a78bfa?text=★';
+  const tip=document.createElement('div');
+  tip.className='badge-tip';tip.textContent=b.tip;
+  wrap.appendChild(img);wrap.appendChild(tip);
+  badgesEl.appendChild(wrap);
+});
+
+
+/* ── LINKS ── */
+const linksGrid=document.getElementById('links-grid');
+CONFIG.links.forEach(l=>{
+  const a=document.createElement('a');
+  a.href=l.href;a.target='_blank';a.rel='noopener';
+  a.className='link-item';
+  a.innerHTML=`
+    <img class="link-icon" src="${l.logo}"
+      onerror="this.src='https://placehold.co/36x36/1a1a2e/a78bfa?text=🔗'">
+    <div>
+      <div class="link-label">${l.label}</div>
+      <div class="link-sub">${l.sub}</div>
+    </div>
+    <span class="link-arrow">↗</span>
+  `;
+  linksGrid.appendChild(a);
+});
+
+
+/* ── MUSIC PLAYER ── */
+let trackIdx=0;
+const audio=document.getElementById('audio');
+const pTitle=document.getElementById('p-title');
+const pArtist=document.getElementById('p-artist');
+const progFill=document.getElementById('prog-fill');
+const timeCur=document.getElementById('time-cur');
+const timeTot=document.getElementById('time-tot');
+const btnPlay=document.getElementById('btn-play');
+
+function fmt(s){
+  const m=Math.floor(s/60),sec=Math.floor(s%60);
+  return `${m}:${sec<10?'0':''}${sec}`;
+}
+function loadTrack(i){
+  const t=CONFIG.tracks[i];
+  if(!t)return;
+  audio.src=t.s;
+  pTitle.textContent=t.t;
+  pArtist.textContent=t.a;
+  progFill.style.width='0%';
+  timeCur.textContent='0:00';
+}
+loadTrack(0);
+
+audio.addEventListener('timeupdate',()=>{
+  if(!audio.duration)return;
+  progFill.style.width=(audio.currentTime/audio.duration*100)+'%';
+  timeCur.textContent=fmt(audio.currentTime);
+  timeTot.textContent=fmt(audio.duration);
+});
+audio.addEventListener('ended',()=>{
+  trackIdx=(trackIdx+1)%CONFIG.tracks.length;
+  loadTrack(trackIdx);audio.play();
+});
+
+document.getElementById('prog-bar').addEventListener('click',e=>{
+  if(!audio.duration)return;
+  const r=e.currentTarget.getBoundingClientRect();
+  audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration;
+});
+
+btnPlay.addEventListener('click',()=>{
+  if(audio.paused){audio.play();btnPlay.textContent='⏸'}
+  else{audio.pause();btnPlay.textContent='▶'}
+});
+document.getElementById('btn-next').addEventListener('click',()=>{
+  trackIdx=(trackIdx+1)%CONFIG.tracks.length;
+  loadTrack(trackIdx);if(!audio.paused)audio.play();
+});
+document.getElementById('btn-prev').addEventListener('click',()=>{
+  trackIdx=(trackIdx-1+CONFIG.tracks.length)%CONFIG.tracks.length;
+  loadTrack(trackIdx);if(!audio.paused)audio.play();
+});
+
+
+/* ── DISCORD / LANYARD ── */
+const statusColors={online:'online',idle:'idle',dnd:'dnd',offline:'offline'};
+
+async function fetchDiscord(){
+  try{
+    const r=await fetch(`https://api.lanyard.rest/v1/users/${CONFIG.userId}`);
+    const j=await r.json();
+    if(!j.success)throw'fail';
+    const d=j.data;
+
+    document.getElementById('discord-name').textContent=d.discord_user.username;
+    document.getElementById('discord-handle').textContent=
+      d.discord_user.discriminator!=='0'?'#'+d.discord_user.discriminator:'';
+    document.getElementById('discord-avatar').src=
+      d.discord_user.avatar
+      ?`https://cdn.discordapp.com/avatars/${d.discord_user.id}/${d.discord_user.avatar}.png?size=128`
+      :CONFIG.fallback.avatar;
+
+    const dot=document.getElementById('status-dot');
+    dot.className='status-dot '+(statusColors[d.discord_status]||'offline');
+    document.getElementById('discord-status').textContent=d.discord_status;
+
+    if(d.listening_to_spotify){
+      updateSpotify(d.spotify.song,d.spotify.artist,d.spotify.album_art_url,d.spotify.track_id);
+    }else{
+      updateSpotify(CONFIG.fallback.song,CONFIG.fallback.artist,
+        CONFIG.fallback.cover,CONFIG.fallback.track,false);
+    }
+  }catch(e){
+    applyFallback();
+  }
+}
+
+function updateSpotify(song,artist,cover,track,playing=true){
+  document.getElementById('song').textContent=song;
+  document.getElementById('artist').textContent=artist;
+
+  const img=document.getElementById('cover');
+  if(img.src!==cover){
+    img.style.opacity='0';
+    img.onload=()=>{img.style.transition='opacity 0.4s';img.style.opacity='1'};
+    img.src=cover;
+  }
+
+  const wrap=document.getElementById('spotify-wrap');
+  const vinyl=document.getElementById('vinyl');
+  const bar=document.getElementById('spotify-bar');
+  if(playing){
+    wrap.classList.add('playing');
+    bar.classList.remove('paused');
+  }else{
+    wrap.classList.remove('playing');
+    bar.classList.add('paused');
+  }
+
+  const iframe=document.getElementById('spotify-iframe');
+  const newSrc=`https://open.spotify.com/embed/track/${track}?utm_source=generator&theme=0`;
+  if(iframe.src!==newSrc)iframe.src=newSrc;
+}
+
+function applyFallback(){
+  document.getElementById('discord-name').textContent=CONFIG.fallback.username;
+  document.getElementById('discord-handle').textContent=CONFIG.fallback.tag;
+  document.getElementById('discord-avatar').src=CONFIG.fallback.avatar;
+  document.getElementById('discord-status').textContent='offline';
+  document.getElementById('status-dot').className='status-dot offline';
+  updateSpotify(CONFIG.fallback.song,CONFIG.fallback.artist,
+    CONFIG.fallback.cover,CONFIG.fallback.track,false);
+}
+
+fetchDiscord();
+setInterval(fetchDiscord,15000);
+</script>
+
+</body>
+</html>
