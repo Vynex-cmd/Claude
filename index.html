@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --blood:    #8b0000;
+  --blood2:   #c0392b;
+  --bone:     #c8b8a2;
+  --ash:      #6b6057;
+  --black:    #050508;
+  --void:     #0a090e;
+  --card:     rgba(8,6,12,0.82);
+  --border:   rgba(139,0,0,0.3);
+  --border2:  rgba(200,184,162,0.1);
+  --text:     #d4c5b0;
+  --muted:    #5a5048;
+  --glow-r:   rgba(139,0,0,0.5);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100vh;overflow-x:hidden}
+body{font-family:'IM Fell English',serif;background:var(--black);color:var(--text);cursor:none}
+
+/* ── BACKGROUND ── */
+.bg{position:fixed;inset:0;z-index:0;background:url('images/background.png') center/cover no-repeat}
+.bg-overlay{
+  position:fixed;inset:0;z-index:1;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(5,3,8,0.55) 0%,transparent 70%),
+    radial-gradient(ellipse at 50% 100%,rgba(5,3,8,0.9) 0%,transparent 70%),
+    linear-gradient(180deg,rgba(5,3,8,0.72) 0%,rgba(5,3,8,0.5) 50%,rgba(5,3,8,0.85) 100%)
+}
+.grain{
+  position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0.045;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px;animation:grainShift 0.4s steps(3) infinite
+}
+@keyframes grainShift{
+  0%{background-position:0 0}33%{background-position:-12px 8px}
+  66%{background-position:8px -12px}100%{background-position:-6px 14px}
+}
+.vignette{
+  position:fixed;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,0.88) 100%)
+}
+
+/* ── CURSOR ── */
+#cursor{
+  position:fixed;width:8px;height:8px;border-radius:50%;
+  background:var(--blood2);pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 12px var(--blood2),0 0 28px var(--blood)
+}
+#cursor-ring{
+  position:fixed;width:28px;height:28px;border-radius:50%;
+  border:1px solid rgba(139,0,0,0.55);pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s
+}
+body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{
+  width:44px;height:44px;border-color:var(--bone)
+}
+
+/* ── EMBER CANVAS ── */
+#ember-canvas{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0.55}
+
+/* ── ENTER SCREEN ── */
+#enter-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--black);
+  transition:opacity 1s ease,visibility 1s
+}
+#enter-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+
+.enter-ornament{
+  font-family:'Cinzel Decorative',serif;font-size:clamp(0.5rem,2vw,0.7rem);
+  letter-spacing:0.55em;color:var(--blood);text-transform:uppercase;
+  margin-bottom:2rem;animation:flicker 4s ease-in-out infinite
+}
+@keyframes flicker{0%,19%,21%,23%,100%{opacity:1}20%{opacity:0.35}22%{opacity:0.8}}
+
+.enter-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(2.2rem,9vw,5.5rem);font-weight:900;
+  color:#fff;text-align:center;line-height:1;
+  text-shadow:0 0 40px var(--blood),0 0 80px rgba(139,0,0,0.35),0 2px 0 #000;
+  position:relative
+}
+.enter-title::after{
+  content:attr(data-text);position:absolute;left:0;top:0;width:100%;
+  color:var(--blood2);animation:gothGlitch 6s infinite;
+  clip-path:polygon(0 45%,100% 45%,100% 55%,0 55%);opacity:0.7
+}
+@keyframes gothGlitch{
+  0%,85%,100%{transform:translate(0);opacity:0}
+  87%{transform:translate(-6px,0);opacity:0.7}89%{transform:translate(6px,0);opacity:0.5}
+  91%{transform:translate(-3px,0);opacity:0.6}93%{opacity:0}
+}
+.enter-rule{
+  width:200px;height:1px;margin:1.8rem auto;
+  background:linear-gradient(90deg,transparent,var(--blood),transparent)
+}
+.enter-sub{font-style:italic;font-size:0.9rem;color:var(--ash);letter-spacing:0.1em;margin-bottom:2.5rem}
+.enter-btn{
+  font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.35em;text-transform:uppercase;
+  padding:0.9rem 3rem;background:transparent;border:1px solid var(--blood);
+  color:var(--bone);cursor:none;position:relative;overflow:hidden;transition:color .4s,border-color .4s
+}
+.enter-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--blood),#3d0000);
+  transform:translateY(101%);transition:transform .4s ease
+}
+.enter-btn:hover{color:#fff;border-color:var(--blood2)}
+.enter-btn:hover::before{transform:translateY(0)}
+.enter-btn span{position:relative;z-index:1}
+
+/* ── MAIN ── */
+#main{
+  position:relative;z-index:10;max-width:680px;margin:0 auto;
+  padding:24px 16px 80px;display:none
+}
+#main.visible{display:block}
+
+/* ── CARD ── */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:4px;
+  padding:22px;margin-bottom:14px;position:relative;overflow:hidden;
+  backdrop-filter:blur(24px) saturate(0.55);
+  opacity:0;animation:riseUp .7s ease forwards;
+  box-shadow:0 0 0 1px rgba(0,0,0,0.8),inset 0 1px 0 rgba(200,184,162,0.04),0 8px 40px rgba(0,0,0,0.75);
+  transition:box-shadow .4s,border-color .4s
+}
+.card:hover{
+  border-color:rgba(139,0,0,0.5);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.8),inset 0 1px 0 rgba(200,184,162,0.04),
+    0 8px 40px rgba(0,0,0,0.75),0 0 30px rgba(139,0,0,0.07)
+}
+.card:nth-child(1){animation-delay:.15s}.card:nth-child(2){animation-delay:.28s}
+.card:nth-child(3){animation-delay:.41s}.card:nth-child(4){animation-delay:.54s}
+@keyframes riseUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--blood),rgba(192,57,43,.5),transparent);opacity:.5
+}
+.card::after{content:'✦';position:absolute;top:8px;right:10px;font-size:.5rem;color:var(--blood);opacity:.45}
+
+/* ── SECTION LABEL ── */
+.section-label{
+  font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--blood);margin-bottom:14px;display:flex;align-items:center;gap:10px
+}
+.section-label::before{content:'⸸';font-size:.7rem}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── BANNER ── */
+.banner{
+  height:130px;
+  background:url('images/banner.png') center/cover,
+    linear-gradient(135deg,#0e0008,#1a0008,#080008);
+  border-radius:3px;margin:-22px -22px 0;position:relative;overflow:hidden
+}
+.banner-vignette{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 30%,rgba(5,3,8,.9) 100%)
+}
+
+/* ── PROFILE ROW ── */
+.profile-row{display:flex;gap:16px;align-items:flex-end;margin-top:-32px;padding-top:10px}
+.avatar-wrap{position:relative;flex-shrink:0}
+.avatar-ring{
+  position:absolute;inset:-4px;border-radius:50%;
+  background:conic-gradient(var(--blood),#3d0000,var(--blood2),#000,var(--blood));
+  animation:rotateRing 8s linear infinite;opacity:.8
+}
+.avatar-ring-mask{position:absolute;inset:-1px;border-radius:50%;background:var(--void)}
+@keyframes rotateRing{to{transform:rotate(360deg)}}
+.avatar{
+  width:84px;height:84px;border-radius:50%;object-fit:cover;
+  position:relative;z-index:1;border:2px solid rgba(139,0,0,.4);
+  filter:saturate(.7) contrast(1.1);transition:filter .4s,transform .4s
+}
+.avatar:hover{filter:saturate(1) contrast(1.15);transform:scale(1.04)}
+.username{
+  font-family:'Cinzel Decorative',serif;font-size:1.2rem;font-weight:700;color:#e8d8c0;
+  text-shadow:0 0 20px rgba(139,0,0,.5);line-height:1.1
+}
+.user-handle{
+  font-family:'Cinzel',serif;font-size:.6rem;color:var(--blood);
+  letter-spacing:.2em;margin-top:3px;animation:flicker 3s ease-in-out infinite
+}
+.bio{font-style:italic;font-size:.82rem;color:var(--ash);line-height:1.6;margin-top:6px}
+
+/* ── BADGES ── */
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.badge-wrap{position:relative;width:30px;height:30px;transition:transform .25s;cursor:none}
+.badge-wrap:hover{transform:scale(1.35) translateY(-5px)}
+.badge-wrap img{width:100%;height:100%;object-fit:contain;filter:saturate(.45) sepia(.3)}
+.badge-wrap:hover img{filter:saturate(1) sepia(0) drop-shadow(0 0 6px var(--blood2))}
+.badge-tip{
+  position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);
+  background:rgba(5,3,8,.95);border:1px solid var(--border);
+  font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.1em;color:var(--bone);
+  padding:3px 8px;border-radius:2px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s
+}
+.badge-wrap:hover .badge-tip{opacity:1}
+
+/* ── DISCORD ── */
+.discord-row{display:flex;gap:14px;align-items:center}
+.disc-avatar-wrap{position:relative;flex-shrink:0}
+.disc-avatar{
+  width:58px;height:58px;border-radius:6px;object-fit:cover;
+  border:1px solid var(--border);filter:saturate(.55) contrast(1.05);background:#0d0009
+}
+.status-dot{
+  position:absolute;bottom:-3px;right:-3px;width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--void);background:var(--muted);transition:background .4s,box-shadow .4s
+}
+.status-dot.online{background:#4a0a0a;box-shadow:0 0 8px #8b0000}
+.status-dot.idle{background:#4a3200;box-shadow:0 0 8px #8b6000}
+.status-dot.dnd{background:#8b0000;box-shadow:0 0 10px #c0392b}
+.status-dot.offline{background:#2a2020}
+.disc-name{font-family:'Cinzel',serif;font-weight:600;font-size:.95rem;color:#d4c5b0}
+.disc-tag{font-family:'Cinzel',serif;font-size:.6rem;color:var(--muted);letter-spacing:.1em}
+.disc-status-text{font-family:'Cinzel',serif;font-size:.6rem;color:var(--blood);letter-spacing:.15em;margin-top:3px;text-transform:uppercase}
+
+/* ── SPOTIFY WRAP ── */
+.spotify-wrap{
+  background:rgba(80,0,0,.06);border:1px solid rgba(139,0,0,.18);
+  border-radius:4px;padding:14px;margin-top:14px;
+  display:flex;gap:14px;align-items:center;
+  position:relative;overflow:hidden;transition:border-color .4s,box-shadow .4s
+}
+.spotify-wrap:hover{border-color:rgba(139,0,0,.35);box-shadow:0 0 24px rgba(139,0,0,.07)}
+.spotify-cover{
+  width:62px;height:62px;border-radius:4px;object-fit:cover;flex-shrink:0;
+  filter:saturate(.5) contrast(1.1);box-shadow:0 4px 20px rgba(0,0,0,.7);transition:filter .4s
+}
+.spotify-wrap:hover .spotify-cover{filter:saturate(.75) contrast(1.1)}
+.spotify-song{font-family:'Cinzel',serif;font-weight:600;font-size:.85rem;color:#d4c5b0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spotify-artist{font-style:italic;font-size:.72rem;color:var(--ash);margin-top:3px}
+.spotify-bar{display:flex;gap:3px;align-items:flex-end;margin-top:8px;height:14px}
+.spotify-bar span{
+  display:inline-block;width:2px;border-radius:2px;background:var(--blood);
+  animation:barBounce .9s ease-in-out infinite alternate
+}
+.spotify-bar span:nth-child(1){height:5px;animation-delay:0s}
+.spotify-bar span:nth-child(2){height:13px;animation-delay:.12s}
+.spotify-bar span:nth-child(3){height:7px;animation-delay:.22s}
+.spotify-bar span:nth-child(4){height:11px;animation-delay:.08s}
+.spotify-bar span:nth-child(5){height:4px;animation-delay:.18s}
+@keyframes barBounce{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
+.spotify-bar.paused span{animation-play-state:paused}
+
+.spotify-embed-wrap{
+  margin-top:12px;border-radius:4px;overflow:hidden;
+  border:1px solid rgba(139,0,0,.15);display:none
+}
+.spotify-embed-wrap iframe{display:block;border:0}
+
+/* ── MUSIC PLAYER ── */
+.player-track{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.player-cover{
+  width:54px;height:54px;border-radius:4px;
+  background:linear-gradient(135deg,#0e0008,#1a0008);
+  object-fit:cover;flex-shrink:0;
+  box-shadow:0 4px 16px rgba(0,0,0,.8);border:1px solid var(--border);filter:saturate(.5)
+}
+.player-title{font-family:'Cinzel',serif;font-weight:600;font-size:.9rem;color:#d4c5b0}
+.player-artist{font-style:italic;font-size:.72rem;color:var(--ash);margin-top:2px}
+.progress-bar{height:2px;background:rgba(200,184,162,.08);border-radius:2px;margin:12px 0 6px;cursor:pointer;position:relative}
+.progress-fill{
+  height:100%;border-radius:2px;width:0%;
+  background:linear-gradient(90deg,var(--blood),var(--blood2));transition:width .5s linear;position:relative
+}
+.progress-fill::after{
+  content:'';position:absolute;right:-3px;top:50%;transform:translateY(-50%);
+  width:8px;height:8px;border-radius:50%;background:var(--bone);box-shadow:0 0 6px var(--blood)
+}
+.time-row{display:flex;justify-content:space-between;font-family:'Cinzel',serif;font-size:.55rem;color:var(--muted);letter-spacing:.1em}
+.player-controls{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:14px}
+.ctrl-btn{background:none;border:none;cursor:none;font-size:.9rem;color:var(--muted);padding:8px;transition:color .25s,transform .2s}
+.ctrl-btn:hover{color:var(--bone);transform:scale(1.2)}
+.play-btn{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,#3d0000,var(--blood));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;color:var(--bone);border:1px solid rgba(192,57,43,.3);
+  box-shadow:0 0 20px var(--glow-r),0 4px 16px rgba(0,0,0,.6);transition:transform .2s,box-shadow .2s
+}
+.play-btn:hover{transform:scale(1.08);box-shadow:0 0 32px var(--glow-r)}
+
+/* ── LINKS ── */
+.links-grid{display:flex;flex-direction:column;gap:8px}
+.link-item{
+  display:flex;align-items:center;gap:14px;padding:12px 14px;
+  background:rgba(8,4,12,.6);border:1px solid var(--border2);border-radius:3px;
+  text-decoration:none;color:var(--text);cursor:none;position:relative;overflow:hidden;
+  transition:background .3s,border-color .3s,transform .25s,box-shadow .3s
+}
+.link-item::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--blood);transform:scaleY(0);transition:transform .3s ease;transform-origin:bottom
+}
+.link-item:hover::before{transform:scaleY(1)}
+.link-item:hover{
+  background:rgba(80,0,0,.12);border-color:rgba(139,0,0,.3);
+  transform:translateX(5px);box-shadow:0 4px 20px rgba(0,0,0,.4)
+}
+.link-icon{
+  width:32px;height:32px;border-radius:4px;object-fit:contain;
+  background:rgba(139,0,0,.08);padding:5px;flex-shrink:0;
+  filter:saturate(.4);transition:filter .3s;border:1px solid var(--border)
+}
+.link-item:hover .link-icon{filter:saturate(1) drop-shadow(0 0 6px var(--blood2))}
+.link-label{font-family:'Cinzel',serif;font-weight:600;font-size:.82rem;color:#d4c5b0}
+.link-sub{font-style:italic;font-size:.65rem;color:var(--muted);margin-top:1px}
+.link-arrow{margin-left:auto;color:var(--blood);font-size:.7rem;transition:transform .2s}
+.link-item:hover .link-arrow{transform:translate(2px,-2px)}
+
+/* ── FOOTER ── */
+.footer{
+  text-align:center;font-family:'Cinzel',serif;font-size:.55rem;
+  letter-spacing:.35em;color:var(--muted);margin-top:28px;text-transform:uppercase
+}
+.footer span{color:var(--blood)}
+</style>
+
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="bg-overlay"></div>
+<div class="grain"></div>
+<div class="vignette"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="ember-canvas"></canvas>
+
+<!-- ══════════════ ENTER ══════════════ -->
+
+<div id="enter-screen">
+  <div class="enter-ornament">✦ &nbsp; memento mori &nbsp; ✦</div>
+  <div class="enter-title" data-text="username">SYLXNT</div>
+  <div class="enter-rule"></div>
+  <div class="enter-sub">the void stares back</div>
+  <button class="enter-btn" onclick="enterSite()"><span>[ enter the dark ]</span></button>
+</div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+
+<div id="main">
+
+  <!-- PROFILE -->
+
+  <div class="card">
+    <div class="banner"><div class="banner-vignette"></div></div>
+    <div class="profile-row">
+      <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        <div class="avatar-ring-mask"></div>
+        <img src="images/pfp.png" class="avatar"
+          onerror="this.src='https://placehold.co/84x84/0e0008/8b0000?text=☽'">
+      </div>
+      <div style="flex:1;min-width:0;padding-bottom:4px">
+        <div class="username">Sylxnt</div>
+        <div class="user-handle">⸸ &nbsp; @sylxnt &nbsp; ⸸</div>
+        <div class="bio">Welcome to my page, feel free to look at any of my socials — creature of the night 🕸️</div>
+      </div>
+    </div>
+    <div class="badges" id="badges" style="margin-top:12px"></div>
+  </div>
+
+  <!-- DISCORD -->
+
+  <div class="card">
+    <div class="section-label">presence</div>
+    <div class="discord-row">
+      <div class="disc-avatar-wrap">
+        <img id="discord-avatar" class="disc-avatar" src="images/pfp.png"
+          onerror="this.src='https://placehold.co/58x58/0e0008/8b0000?text=☽'">
+        <div class="status-dot" id="status-dot"></div>
+      </div>
+      <div>
+        <div class="disc-name" id="discord-name">…</div>
+        <div class="disc-tag" id="discord-handle"></div>
+        <div class="disc-status-text" id="discord-status">summoning…</div>
+        <div id="discord-badges" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px"></div>
+      </div>
+    </div>
+
+    <div class="spotify-wrap" id="spotify-wrap">
+      <img id="cover" class="spotify-cover"
+        src="https://placehold.co/62x62/0e0008/8b0000?text=☽">
+      <div style="flex:1;min-width:0">
+        <div class="spotify-song" id="song">not listening</div>
+        <div class="spotify-artist" id="artist"></div>
+        <div class="spotify-bar paused" id="spotify-bar">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spotify-embed-wrap" id="spotify-embed-wrap" style="display:block">
+      <iframe id="spotify-iframe"
+        src="https://open.spotify.com/embed/track/1JgknGBbrfmEHeOZH051SS?utm_source=generator&theme=0&autoplay=1"
+        width="100%" height="80" frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        allowtransparency="true"></iframe>
+    </div>
+
+  </div>
+
+  <!-- MUSIC PLAYER -->
+
+  <div class="card">
+    <div class="section-label">offerings</div>
+    <div class="player-track">
+      <img class="player-cover" id="p-cover"
+        src="https://placehold.co/54x54/0e0008/8b0000?text=♪">
+      <div>
+        <div class="player-title" id="p-title">—</div>
+        <div class="player-artist" id="p-artist">—</div>
+      </div>
+    </div>
+    <div class="progress-bar" id="prog-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    <div class="time-row"><span id="time-cur">0:00</span><span id="time-tot">0:00</span></div>
+    <div class="player-controls">
+      <button class="ctrl-btn" id="btn-prev">⏮</button>
+      <button class="ctrl-btn play-btn" id="btn-play">▶</button>
+      <button class="ctrl-btn" id="btn-next">⏭</button>
+    </div>
+    <audio id="audio"></audio>
+  </div>
+
+  <!-- LINKS -->
+
+  <div class="card">
+    <div class="section-label">portals</div>
+    <div class="links-grid" id="links-grid"></div>
+  </div>
+
+  <div class="footer">✦ &nbsp; <span>memento mori</span> &nbsp; ✦ &nbsp; v2.0</div>
+</div>
+
+<script>
+/* ══════════ CONFIG ══════════ */
+const CONFIG = {
+  userId: "786539308826755120",
+
+  badges: [
+    { img:"images/badge1.png", tip:"Owner" },
+    { img:"images/badge2.png", tip:"Dev" },
+    { img:"images/badge3.png", tip:"Jenna Simp" },
+    { img:"images/badge4.png", tip:"Alysa Simp" },
+    { img:"images/badge5.png", tip:"Sabrina Simp" },
+  ],
+
+  tracks: [
+    { t:"Track 1", a:"Artist", s:"music/track1.mp3" },
+    { t:"Track 2", a:"Artist", s:"music/track2.mp3" },
+    { t:"Track 3", a:"Artist", s:"music/track3.mp3" },
+  ],
+
+  links: [
+    { logo:"images/link1.png", label:"Twitter / X",  sub:"@jpgjenna",    href:"https://x.com/jpgjenna" },
+    { logo:"images/link2.png", label:"insta",        sub:"My instagram", href:"https://www.instagram.com/slyce.ffx/?__pwa=1" },
+    { logo:"images/link3.png", label:"Discord",       sub:"join my server", href:"https://discord.gg/ZV6Qkkfp" },
+    { logo:"images/link4.png", label:"Spotify",       sub:"my playlists",   href:"https://open.spotify.com/playlist/1NeCvx1hoyTc5xAYIoogbg?si=9bd9c41065ee4335" },
+    { logo:"images/link5.png", label:"FakeCrime",        sub:"My FakeCrime", href:"https://fakecrime.bio/sylxnt" },
+  ],
+};
+/* ════════════════════════════ */
+
+
+/* ── CURSOR ── */
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+});
+(function raf(){
+  rx+=(mx-rx)*.1;ry+=(my-ry)*.1;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(raf);
+})();
+
+
+/* ── EMBER PARTICLES ── */
+(function(){
+  const c=document.getElementById('ember-canvas'),ctx=c.getContext('2d');
+  let W,H,embers=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
+  resize();window.addEventListener('resize',resize);
+  function spawn(){
+    return{
+      x:Math.random()*W,y:H+10,
+      vx:(Math.random()-.5)*.6,vy:-(Math.random()*.8+.3),
+      r:Math.random()*1.8+.4,life:1,
+      decay:Math.random()*.004+.002,
+      col:Math.random()<.6?'139,0,0':'192,57,43'
+    };
+  }
+  for(let i=0;i<60;i++){const e=spawn();e.y=Math.random()*H;embers.push(e)}
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    if(Math.random()<.15)embers.push(spawn());
+    embers=embers.filter(e=>{
+      e.x+=e.vx;e.y+=e.vy;e.vx+=(Math.random()-.5)*.04;e.life-=e.decay;
+      if(e.life<=0||e.y<-10)return false;
+      ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${e.col},${e.life*.65})`;ctx.fill();
+      return true;
+    });
+    requestAnimationFrame(draw);
+  })();
+})();
+
+
+/* ── ENTER ── */
+function enterSite(){
+  document.getElementById('enter-screen').classList.add('hidden');
+  document.getElementById('main').style.display='block';
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!document.getElementById('enter-screen').classList.contains('hidden'))
+    enterSite();
+});
+
+
+/* ── BADGES ── */
+CONFIG.badges.forEach(b=>{
+  const w=document.createElement('div');w.className='badge-wrap';
+  const img=document.createElement('img');
+  img.src=b.img;img.onerror=()=>img.src='https://placehold.co/30x30/0e0008/8b0000?text=✦';
+  const tip=document.createElement('div');tip.className='badge-tip';tip.textContent=b.tip;
+  w.appendChild(img);w.appendChild(tip);
+  document.getElementById('badges').appendChild(w);
+});
+
+
+/* ── LINKS ── */
+CONFIG.links.forEach(l=>{
+  const a=document.createElement('a');
+  a.href=l.href;a.target='_blank';a.rel='noopener';a.className='link-item';
+  a.innerHTML=`
+    <img class="link-icon" src="${l.logo}"
+      onerror="this.src='https://placehold.co/32x32/0e0008/8b0000?text=⸸'">
+    <div>
+      <div class="link-label">${l.label}</div>
+      <div class="link-sub">${l.sub}</div>
+    </div>
+    <span class="link-arrow">↗</span>`;
+  document.getElementById('links-grid').appendChild(a);
+});
+
+
+/* ── MUSIC PLAYER ── */
+let idx=0;
+const audio=document.getElementById('audio');
+const pTitle=document.getElementById('p-title'),pArtist=document.getElementById('p-artist');
+const progFill=document.getElementById('prog-fill');
+const timeCur=document.getElementById('time-cur'),timeTot=document.getElementById('time-tot');
+const btnPlay=document.getElementById('btn-play');
+
+function fmt(s){const m=Math.floor(s/60),sc=Math.floor(s%60);return`${m}:${sc<10?'0':''}${sc}`}
+function loadTrack(i){
+  const t=CONFIG.tracks[i];if(!t)return;
+  audio.src=t.s;pTitle.textContent=t.t;pArtist.textContent=t.a;
+  progFill.style.width='0%';timeCur.textContent='0:00';
+}
+loadTrack(0);
+
+audio.addEventListener('timeupdate',()=>{
+  if(!audio.duration)return;
+  progFill.style.width=(audio.currentTime/audio.duration*100)+'%';
+  timeCur.textContent=fmt(audio.currentTime);
+  timeTot.textContent=fmt(audio.duration);
+});
+audio.addEventListener('ended',()=>{idx=(idx+1)%CONFIG.tracks.length;loadTrack(idx);audio.play()});
+document.getElementById('prog-bar').addEventListener('click',e=>{
+  if(!audio.duration)return;
+  const r=e.currentTarget.getBoundingClientRect();
+  audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration;
+});
+btnPlay.addEventListener('click',()=>{
+  if(audio.paused){audio.play();btnPlay.textContent='⏸'}
+  else{audio.pause();btnPlay.textContent='▶'}
+});
+document.getElementById('btn-next').addEventListener('click',()=>{
+  idx=(idx+1)%CONFIG.tracks.length;loadTrack(idx);if(!audio.paused)audio.play();
+});
+document.getElementById('btn-prev').addEventListener('click',()=>{
+  idx=(idx-1+CONFIG.tracks.length)%CONFIG.tracks.length;
+  loadTrack(idx);if(!audio.paused)audio.play();
+});
+
+
+/* ── DISCORD / LANYARD ── */
+async function fetchDiscord(){
+  try{
+    const r=await fetch(`https://api.lanyard.rest/v1/users/${CONFIG.userId}`);
+    const j=await r.json();
+    if(!j.success)throw'fail';
+    const d=j.data;
+
+    document.getElementById('discord-name').textContent=d.discord_user.username;
+    const disc=d.discord_user.discriminator;
+    document.getElementById('discord-handle').textContent=
+      disc&&disc!=='0'?'#'+disc:'';
+    document.getElementById('discord-avatar').src=
+      d.discord_user.avatar
+        ?`https://cdn.discordapp.com/avatars/${d.discord_user.id}/${d.discord_user.avatar}.png?size=128`
+        :'images/pfp.png';
+
+    const dot=document.getElementById('status-dot');
+    dot.className='status-dot '+d.discord_status;
+    document.getElementById('discord-status').textContent=d.discord_status;
+
+    // ── KV BADGES ──
+    const BADGE_ICONS={
+      nitro:          'https://discord.sale/badges/nitro.png',
+      server_booster: 'https://discord.sale/badges/boost.png',
+      early_supporter:'https://discord.sale/badges/early_supporter.png',
+      bug_hunter:     'https://discord.sale/badges/bug_hunter_1.png',
+      bug_hunter_level_2:'https://discord.sale/badges/bug_hunter_2.png',
+      active_developer:'https://discord.sale/badges/active_developer.png',
+      verified_developer:'https://discord.sale/badges/verified_bot_developer.png',
+      hypesquad_brilliance:'https://discord.sale/badges/hypesquad_brilliance.png',
+      hypesquad_bravery:'https://discord.sale/badges/hypesquad_bravery.png',
+      hypesquad_balance:'https://discord.sale/badges/hypesquad_balance.png',
+      discord_staff:  'https://discord.sale/badges/staff.png',
+      partner:        'https://discord.sale/badges/partner.png',
+    };
+    const badgeEl=document.getElementById('discord-badges');
+    badgeEl.innerHTML='';
+    try{
+      const raw=d.kv&&d.kv.badges;
+      if(raw){
+        const list=JSON.parse(raw);
+        list.forEach(name=>{
+          const url=BADGE_ICONS[name];
+          if(!url)return;
+          const img=document.createElement('img');
+          img.src=url;
+          img.title=name.replace(/_/g,' ');
+          img.style.cssText='width:20px;height:20px;object-fit:contain;filter:saturate(.5);transition:filter .2s;';
+          img.onmouseover=()=>img.style.filter='saturate(1) drop-shadow(0 0 4px var(--blood2))';
+          img.onmouseout=()=>img.style.filter='saturate(.5)';
+          img.onerror=()=>img.remove();
+          badgeEl.appendChild(img);
+        });
+      }
+    }catch(err){}
+
+    if(d.listening_to_spotify){
+      showSpotify(d.spotify.song,d.spotify.artist,d.spotify.album_art_url,d.spotify.track_id);
+    }else{
+      hideSpotify();
+    }
+  }catch(e){
+    hideSpotify();
+  }
+}
+
+function showSpotify(song,artist,cover,trackId){
+  document.getElementById('song').textContent=song;
+  document.getElementById('artist').textContent=artist;
+  const img=document.getElementById('cover');
+  if(img.dataset.src!==cover){
+    img.dataset.src=cover;img.style.opacity='0';
+    img.onload=()=>{img.style.transition='opacity .5s';img.style.opacity='1'};
+    img.src=cover;
+  }
+  document.getElementById('spotify-bar').classList.remove('paused');
+  const ew=document.getElementById('spotify-embed-wrap');
+  ew.style.display='block';
+  const iframe=document.getElementById('spotify-iframe');
+  const src=`https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0&autoplay=1`;
+  if(iframe.src!==src)iframe.src=src;
+}
+
+function hideSpotify(){
+  document.getElementById('song').textContent='not listening';
+  document.getElementById('artist').textContent='';
+  document.getElementById('cover').src='https://placehold.co/62x62/0e0008/8b0000?text=☽';
+  document.getElementById('spotify-bar').classList.add('paused');
+  // keep embed visible with whatever track was last loaded
+}
+
+fetchDiscord();
+setInterval(fetchDiscord,15000);
+</script>
+
+</body>
+</html>
